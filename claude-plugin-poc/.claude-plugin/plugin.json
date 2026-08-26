@@ -1,0 +1,9 @@
+{
+  "name": "gendd",
+  "description": "GenDD requirements enhancement for Claude Code: turn vague requirements into structured, testable specs with Given/When/Then acceptance criteria.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": {
+    "name": "Felipe Augusto"
+  }
+}
