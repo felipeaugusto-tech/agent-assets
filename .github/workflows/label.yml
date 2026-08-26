@@ -1,0 +1,100 @@
+name: Pull Request Labeler
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Apply Labels Based on Repository Topics, Branch Name, and PR Title
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+            // Retrieve repository topics via the GitHub API.
+            const topicsResponse = await github.request('GET /repos/{owner}/{repo}/topics', {
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            const topics = topicsResponse.data.names;
+            console.log("Repository topics: ", topics);
+            
+            // Get the branch name from the pull request payload.
+            const branchName = context.payload.pull_request.head.ref;
+            console.log("Branch name: ", branchName);
+            console.log("Raw PR Test Title:", context.payload.pull_request.title); 
+            
+            // Define labels based on branch name prefixes.
+            const branchLabels = [];
+            if (branchName.startsWith("bugfix")) {
+              branchLabels.push("bug");
+            } else if (branchName.startsWith("release")) {
+              branchLabels.push("release");
+            } else if (branchName.startsWith("feature")) {
+              branchLabels.push("enhancement");
+            }
+            console.log("Branch based labels: ", branchLabels);
+
+            // Define PR title keyword-to-label mappings.
+            const prTitleKeywordLabelMap = [
+              ["ABDO", "devops"],
+              ["ABHD", "devops"],
+              ["ACC", "accel-client-candidate"],
+              ["ACRE", "excellence"],
+              ["ATAP", "ats-api"],
+              ["AXC", "axis"],
+              ["AXIS", "axis"],
+              ["COM", "accel-compliance"],
+              ["CORE", "core-services"],
+              ["CRMV", "criminal-mvr"],
+              ["DHS", "accel-dhs"],
+              ["GLOBAL", "global"],
+              ["OAB", "onboarding-billing"],
+              ["POSTE", "post-employment"],
+              ["VERI", "verifications"],
+              ["SAN","sanctions"],
+              ["INNO","innovation"],
+              ["DATA","enterprise-data"],
+              ["ACECOM","ace-compliance"],
+              ["ACE","ace"]];
+
+            // Extract labels from PR title (skip if title contains "ACE").
+            const prTitle = (context.payload.pull_request.title || "").toUpperCase();
+            const prTitleLabels = [];
+            if (!prTitle.includes("ACE")) {
+              for (const [keyword, label] of prTitleKeywordLabelMap) {
+                if (prTitle.includes(keyword)) {
+                  prTitleLabels.push(label);
+                }
+              }
+            }
+            console.log("PR title based labels: ", prTitleLabels);
+
+            // Define labels to exclude (e.g., "platform-", "jdk").
+            const toRemove = ['platform-', 'jdk', 'ignore-whitesource', 'downstream', 'auto-upgrade'];
+            
+            // Combine all labels (topics + branch + PR title) and remove duplicates/filtered.
+            let labelsToApply = Array.from(new Set([...topics, ...branchLabels, ...prTitleLabels]));
+            labelsToApply = labelsToApply.filter(item => !toRemove.some(prefix => item.startsWith(prefix)));
+            console.log("Final labels to apply: ", labelsToApply);
+            
+            if (labelsToApply.length === 0) {
+              console.log("No labels to apply. Skipping.");
+              return;
+            }
+            
+            // Apply labels to the PR.
+            const prNumber = context.payload.pull_request.number;
+            console.log(`Applying labels to PR #${prNumber}`);
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              labels: labelsToApply
+            });

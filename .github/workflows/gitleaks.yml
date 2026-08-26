@@ -1,0 +1,19 @@
+name: GitLeaks security check
+
+on:
+  push:
+    branches: [ main, master, development, develop ]
+  pull_request:
+    branches: [ main, master, development, develop ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: accuratebg/checkout-action@1d3d798c5944215c6e96f8a7f3a0544b701db783
+        with:
+          fetch-depth: '0'
+      - name: gitleaks-action
+        uses: accuratebg/gitleaks-action@1db0975a60f741d9551e1f9e2a11052755f9f4ac
