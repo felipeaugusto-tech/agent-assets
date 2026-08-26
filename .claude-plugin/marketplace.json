@@ -1,0 +1,15 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "hatchworks",
+  "description": "Internal Claude Code plugins for Hatchworks / GenDD workflows",
+  "owner": {
+    "name": "Felipe Augusto"
+  },
+  "plugins": [
+    {
+      "name": "gendd",
+      "description": "Requirements enhancement: turn a vague requirement into a structured, testable spec with Given/When/Then acceptance criteria.",
+      "source": "./claude-plugin-poc"
+    }
+  ]
+}
