@@ -1,0 +1,4 @@
+timestamp_utc,arm,arm_label,n,prompt_tokens_median,prompt_tokens_min,prompt_tokens_max,output_tokens_median,turns_median,cost_usd_median,claude_version,plugin,plugin_version,skill_invoked,skills_count,skills_list,agents_count,hooks_count,mcp_count,lsp_count,projected_always_on_tokens,work_dir,repo_commit
+2026-08-27T19:48:36Z,A,plugin disabled,5,27404,27404,27404,4,1,0.0148,2.1.247 (Claude Code),gendd@hatchworks,0.1.0,,1,enhance-requirements,0,0,0,0,59,/c/Users/developer,02ab041
+2026-08-27T19:48:36Z,B,plugin idle,5,27404,27404,27404,4,1,0.0148,2.1.247 (Claude Code),gendd@hatchworks,0.1.0,,1,enhance-requirements,0,0,0,0,59,/c/Users/developer,02ab041
+2026-08-27T19:48:36Z,C,skill invoked,3,72854,72853,72854,8755,4,0.2553,2.1.247 (Claude Code),gendd@hatchworks,0.1.0,/gendd:enhance-requirements,1,enhance-requirements,0,0,0,0,59,/c/Users/developer,02ab041

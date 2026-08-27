@@ -3,6 +3,14 @@
 A minimal Claude Code plugin that packages **one** manually invoked skill:
 `/gendd:enhance-requirements`.
 
+## Documentation
+
+| Document | What it covers |
+|---|---|
+| [1-plugin-overview.md](1-plugin-overview.md) | What a Claude Code plugin is, its anatomy, and the invocation-control decision behind this one |
+| [2-distribution-guide.md](2-distribution-guide.md) | Sharing a plugin across an organization — the two admin systems, and which one reaches Claude Code |
+| [3-token-benchmarks.md](3-token-benchmarks.md) | Measured token and cost impact of installing and invoking the plugin |
+
 ## What it does
 
 Takes a vague requirement and returns a structured, testable specification in chat:
