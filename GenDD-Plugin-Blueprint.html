@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{color-scheme:light dark}
+  body{margin:0;font:14px/1.5 system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:#f2f6f5}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+<title>GenDD Plugin Blueprint</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --bg:#f2f6f5; --panel:#ffffff; --sunk:#e8eeed; --ink:#101d1c; --ink2:#3f5250; --dim:#75908d;
+    --line:#d5e0de; --line2:#c2d2cf;
+    --teal:#12807f; --teal-soft:#e2f2f1;
+    --gold:#9c6612; --gold-soft:#fbf0da;
+    --coral:#b8393a; --coral-soft:#fbe6e4;
+    --code:#4650a8; --code-soft:#e8eaf8;
+    --shadow:0 1px 2px rgba(16,29,28,.06), 0 6px 18px rgba(16,29,28,.05);
+    --sans:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+    --disp:'Archivo','IBM Plex Sans',Arial,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#101617; --panel:#1a2224; --sunk:#151d1e; --ink:#e9f4f2; --ink2:#b3c8c5; --dim:#7d9794;
+      --line:#2b3739; --line2:#374547;
+      --teal:#4fd0ce; --teal-soft:#14312f;
+      --gold:#e0a53c; --gold-soft:#33260f;
+      --coral:#f0827c; --coral-soft:#3a1d1c;
+      --code:#9aa6f2; --code-soft:#1d2040;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 22px rgba(0,0,0,.28);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#101617; --panel:#1a2224; --sunk:#151d1e; --ink:#e9f4f2; --ink2:#b3c8c5; --dim:#7d9794;
+    --line:#2b3739; --line2:#374547;
+    --teal:#4fd0ce; --teal-soft:#14312f;
+    --gold:#e0a53c; --gold-soft:#33260f;
+    --coral:#f0827c; --coral-soft:#3a1d1c;
+    --code:#9aa6f2; --code-soft:#1d2040;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 22px rgba(0,0,0,.28);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1240px;margin:0 auto;padding:34px 26px 70px}
+  .eyebrow{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--teal)}
+  h1{font-family:var(--disp);font-weight:700;font-size:clamp(28px,4.2vw,44px);line-height:1.05;letter-spacing:-.018em;margin:9px 0 0;text-wrap:balance}
+  .lede{margin:15px 0 0;max-width:70ch;color:var(--ink2);font-size:16px}
+  .lede b{color:var(--ink);font-weight:600}
+  .lede code{font-family:var(--mono);font-size:14.5px;background:var(--sunk);padding:1px 5px;border-radius:2px;color:var(--ink)}
+  .decide{margin:22px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px}
+  .dc{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:2px;padding:14px 16px 15px}
+  .dc .dn{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--teal)}
+  .dc h4{font-family:var(--disp);font-weight:700;font-size:14px;margin:5px 0 0;line-height:1.25}
+  .dc p{margin:7px 0 0;font-size:12px;color:var(--ink2);line-height:1.5}
+  .dc code{font-family:var(--mono);font-size:11px;background:var(--sunk);padding:1px 4px;border-radius:2px;color:var(--ink);word-break:break-word}
+  hr.rule{border:0;border-top:1px solid var(--line);margin:34px 0}
+  h2{font-family:var(--disp);font-weight:700;font-size:20px;letter-spacing:-.008em;margin:6px 0 0}
+  .h2sub{color:var(--ink2);font-size:14.5px;margin:8px 0 0;max-width:78ch}
+  .h2sub code{font-family:var(--mono);font-size:13px;background:var(--sunk);padding:1px 4px;border-radius:2px;color:var(--ink)}
+  .h2sub b{color:var(--ink);font-weight:600}
+  .sechead{margin-bottom:20px}
+  .secnum{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--dim);letter-spacing:.12em}
+
+  .pin{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--coral);border-radius:2px;padding:18px 21px;max-width:82ch}
+  .pin .pt{font-family:var(--disp);font-weight:700;font-size:clamp(16px,2.1vw,19px);line-height:1.3;letter-spacing:-.008em}
+  .pin p{margin:11px 0 0;font-size:13.5px;color:var(--ink2);line-height:1.6}
+  .pin b{color:var(--ink);font-weight:600}
+  .pin code{font-family:var(--mono);font-size:12.5px;background:var(--sunk);padding:1px 5px;border-radius:2px;color:var(--ink);word-break:break-word}
+
+  .cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:0;background:var(--panel);border:1px solid var(--line);border-radius:3px;overflow:hidden}
+  .cl{padding:17px 19px 19px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .cl .ch{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--hue)}
+  .cl.for{--hue:var(--teal)} .cl.against{--hue:var(--gold)} .cl.neutral{--hue:var(--dim)}
+  .cl h3{font-family:var(--disp);font-weight:700;font-size:14.5px;margin:5px 0 0;line-height:1.25}
+  .cl p{margin:8px 0 0;font-size:12.5px;color:var(--ink2);line-height:1.55}
+  .cl b{color:var(--ink);font-weight:600}
+  .cl code{font-family:var(--mono);font-size:11.5px;background:var(--sunk);padding:1px 4px;border-radius:2px;color:var(--ink);word-break:break-word}
+
+  .treewrap{background:var(--panel);border:1px solid var(--line);border-radius:3px;overflow-x:auto}
+  pre.tree{margin:0;padding:20px 22px;font-family:var(--mono);font-size:12px;line-height:1.75;color:var(--ink2);min-width:700px}
+  pre.tree .d{color:var(--ink);font-weight:600}
+  pre.tree .keep{color:var(--dim)}
+  pre.tree .new{color:var(--teal);font-weight:600}
+  pre.tree .gen{color:var(--code);font-weight:600}
+  pre.tree .cm{color:var(--dim)}
+  pre.tree .rsv{color:var(--coral)}
+  .zkeys{display:flex;flex-wrap:wrap;gap:9px 22px;margin:0 0 14px;padding:13px 16px;background:var(--sunk);border-radius:3px;font-size:12px;color:var(--ink2)}
+  .zkeys span{display:flex;align-items:center;gap:7px}
+  .zkeys i{width:10px;height:10px;border-radius:2px;display:block;flex-shrink:0}
+  .zkeys code{font-family:var(--mono);font-size:11.5px;color:var(--ink)}
+  .zones{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;margin-top:14px}
+  .zn{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--hue);border-radius:2px;padding:16px 17px 18px}
+  .zn.a{--hue:var(--dim)} .zn.b{--hue:var(--teal)} .zn.c{--hue:var(--code)}
+  .zn .zt{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--hue)}
+  .zn h3{font-family:var(--disp);font-weight:700;font-size:15px;margin:5px 0 0}
+  .zn p{margin:9px 0 0;font-size:12.5px;color:var(--ink2);line-height:1.55}
+  .zn b{color:var(--ink);font-weight:600}
+  .zn code{font-family:var(--mono);font-size:11.5px;background:var(--sunk);padding:1px 4px;border-radius:2px;color:var(--ink);word-break:break-word}
+
+  .tw{overflow-x:auto;border:1px solid var(--line);border-radius:3px;background:var(--panel)}
+  table{border-collapse:collapse;width:100%;min-width:900px;font-size:12.5px}
+  th{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--dim);text-align:left;padding:10px 14px;background:var(--sunk);border-bottom:1px solid var(--line2);white-space:nowrap}
+  td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink2);line-height:1.5}
+  tr:last-child td{border-bottom:none}
+  tr.pg td{background:var(--sunk);padding:8px 14px;border-bottom:1px solid var(--line2)}
+  tr.pg .pgn{font-family:var(--disp);font-weight:700;font-size:13px;color:var(--ink)}
+  tr.pg .pgm{font-family:var(--mono);font-size:10.5px;color:var(--dim);margin-left:10px}
+  td code{font-family:var(--mono);font-size:11.5px;background:var(--sunk);color:var(--ink);padding:1px 5px;border-radius:2px;word-break:break-word}
+  .lin{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.05em;padding:3px 6px;border-radius:2px;white-space:nowrap;display:inline-block}
+  .lin.corpus{background:var(--code-soft);color:var(--code)}
+  .lin.import{background:var(--teal-soft);color:var(--teal)}
+  .lin.author{background:var(--coral-soft);color:var(--coral)}
+  .lin.live{background:var(--teal);color:var(--panel)}
+  .stp{font-family:var(--mono);font-size:10.5px;color:var(--dim);white-space:nowrap}
+
+  .flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:0;background:var(--panel);border:1px solid var(--line);border-radius:3px;overflow:hidden}
+  .fs{padding:17px 19px 19px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .fs .fn{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--teal);letter-spacing:.1em}
+  .fs h4{font-family:var(--disp);font-weight:700;font-size:14.5px;margin:5px 0 0;line-height:1.25}
+  .fs p{margin:9px 0 0;font-size:12.5px;color:var(--ink2);line-height:1.55}
+  .fs b{color:var(--ink);font-weight:600}
+  .fs code{font-family:var(--mono);font-size:11.5px;background:var(--sunk);padding:1px 4px;border-radius:2px;color:var(--ink);word-break:break-word}
+  pre.code{margin:11px 0 0;background:var(--sunk);border:1px solid var(--line);border-radius:2px;padding:12px 14px;overflow-x:auto;font-family:var(--mono);font-size:11.5px;color:var(--ink);line-height:1.65}
+  pre.code .cm{color:var(--dim)}
+  pre.code .kw{color:var(--teal);font-weight:600}
+  pre.code .st{color:var(--code)}
+
+  .ph{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:3px;overflow:hidden}
+  .pr{display:grid;grid-template-columns:140px 1fr 250px;border-bottom:1px solid var(--line)}
+  .pr:last-child{border-bottom:none}
+  .pr > div{padding:15px 17px 17px}
+  .pr .pl{background:var(--sunk);border-left:3px solid var(--hue)}
+  .pr.p0{--hue:var(--teal)} .pr.p1{--hue:var(--gold)} .pr.p2,.pr.p3,.pr.p4{--hue:var(--code)} .pr.p5{--hue:var(--dim)}
+  .pr .pn{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.09em;color:var(--hue)}
+  .pr .pnm{font-family:var(--disp);font-weight:700;font-size:14px;margin-top:4px;line-height:1.2}
+  .pr .ptouch{font-family:var(--mono);font-size:9.5px;color:var(--dim);margin-top:8px;line-height:1.45}
+  .pr .mid p{margin:0;font-size:12.5px;color:var(--ink2);line-height:1.55}
+  .pr .mid p + p{margin-top:8px}
+  .pr .mid b{color:var(--ink);font-weight:600}
+  .pr code{font-family:var(--mono);font-size:11.5px;background:var(--sunk);color:var(--ink);padding:1px 5px;border-radius:2px;word-break:break-word}
+  .pr .rgt{border-left:1px solid var(--line)}
+  .pr .rgt .rl{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+  .pr .rgt p{margin:0;font-size:12px;color:var(--ink2);line-height:1.5}
+  .pr .rgt p + p{margin-top:8px}
+  @media (max-width:880px){ .pr{grid-template-columns:1fr} .pr .rgt{border-left:none;border-top:1px solid var(--line)} }
+
+  .open{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));background:var(--panel);border:1px solid var(--line);border-radius:3px;overflow:hidden}
+  .op{padding:16px 18px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .op .ot{font-family:var(--disp);font-weight:600;font-size:14px;display:flex;align-items:flex-start;gap:8px;line-height:1.3}
+  .op .sev{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:6px}
+  .op .sev.hi{background:var(--coral)} .op .sev.md{background:var(--gold)} .op .sev.lo{background:var(--teal)}
+  .op .od{font-size:12.5px;color:var(--ink2);margin-top:7px;line-height:1.5}
+  .op .od code{font-family:var(--mono);font-size:11.5px;background:var(--sunk);color:var(--ink);padding:1px 4px;border-radius:2px;word-break:break-word}
+  .op .od b{color:var(--ink);font-weight:600}
+
+  footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11px;color:var(--dim);line-height:1.65}
+  footer a{color:var(--teal);text-decoration:none;border-bottom:1px solid var(--line2)}
+  footer a:hover{border-bottom-color:var(--teal)}
+  @media (max-width:620px){ .wrap{padding:24px 16px 50px} }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Project Slipstream · GenDD Practice · Plugin architecture · v2</div>
+    <h1>One plugin, thirty-four commands</h1>
+    <p class="lede">Your sketch, made buildable — and simplified. The whole GenDD workflow ships as the <b>single <code>gendd</code> plugin that already exists</b>, grown from one skill to thirty-four, assembled from the <code>agent-assets</code> corpus by a small build step. This replaces the six-plugin version of this plan; section 02 explains why, including where my earlier recommendation was wrong.</p>
+    <div class="pin" style="border-left-color:var(--teal);margin-top:20px">
+      <div class="pt">Three of the thirty-four are on disk. Phase 0 is complete and verified.</div>
+      <p><b>enhance-requirements</b> — shipping since v0.1.0. <b>run-brownfield-analysis</b> — authored, untested against a real repository. <b>adr-writer</b> — vendored from its <code>.skill</code> package, which proves the import mechanic for the other twelve. The sync script covers both source types.</p>
+      <p>The live status, the exact commands and the test plan are in <code>claude-plugin-poc/4-skill-packaging.md</code>; this page is the reasoning behind them. Both are on disk in the repo, so a Claude Code session can read them directly.</p>
+    </div>
+    <div class="decide">
+      <div class="dc">
+        <div class="dn">Rule 1</div>
+        <h4>Nothing existing is edited</h4>
+        <p>Not the corpus, not <code>marketplace.json</code>, not <code>plugin.json</code>. Only additions under <code>claude-plugin-poc/</code>.</p>
+      </div>
+      <div class="dc">
+        <div class="dn">Rule 2</div>
+        <h4>Every skill keeps its name</h4>
+        <p><code>adr-writer</code>, not <code>write-adr</code>. The existing <code>.skill</code> name wins, then the corpus filename. New names only where none exists.</p>
+      </div>
+      <div class="dc">
+        <div class="dn">Rule 3</div>
+        <h4>One namespace, no migration</h4>
+        <p>Everything is <code>/gendd:&lt;name&gt;</code>. <code>/gendd:enhance-requirements</code> keeps working exactly as it does today.</p>
+      </div>
+      <div class="dc">
+        <div class="dn">Rule 4</div>
+        <h4>One script, no framework</h4>
+        <p>Corpus content is copied into <code>references/</code> by ~18 lines of shell whose copy lines double as the map. <code>--check</code> proves the copies still match.</p>
+      </div>
+    </div>
+  </header>
+
+  <hr class="rule">
+
+  <section class="sechead">
+    <div class="secnum">01 · THE FINDING THAT SHAPES EVERYTHING</div>
+    <h2>A plugin cannot read a file outside its own root</h2>
+  </section>
+
+  <div class="pin">
+    <div class="pt">There is no documented way for a skill to reach <code>../../gendd-analysis/</code>. So the corpus content each skill needs has to be physically inside the plugin — which means the plugin is <b>built</b>, not hand-assembled. This is true whether there is one plugin or six.</div>
+    <p>The variables a plugin gets are <code>${CLAUDE_PLUGIN_ROOT}</code>, <code>${CLAUDE_PLUGIN_DATA}</code> and <code>${CLAUDE_PROJECT_DIR}</code>; none reaches a sibling directory. Traversal out of the plugin root is undocumented, symlink survival is undocumented, and the <code>git-subdir</code> source type — the one built for monorepos — sparse-clones only the plugin's own subdirectory, so on that path the rest of the repo provably isn't there.</p>
+    <p>Your POC reached this conclusion the hard way and solved it by copying three files byte-for-byte. That was right, and it produced the exact problem worth designing out: <code>enhance-requirements</code> now exists in four places and the copies won't follow an edit to the source. Thirty-four skills means roughly seventy copied files with the same failure mode.</p>
+    <p><b>So keep the copying and make it a script with a check.</b> The corpus stays the single source of truth and is never touched; the plugin's <code>skills/</code> and <code>references/</code> become generated output; and one command proves the output still matches the corpus. Byte-fidelity, no drift, nothing maintained twice.</p>
+  </div>
+
+  <hr class="rule">
+
+  <section class="sechead">
+    <div class="secnum">02 · WHY ONE PLUGIN, NOT SIX</div>
+    <h2>The main argument for splitting doesn't survive scrutiny</h2>
+    <p class="h2sub">I recommended per-occupation plugins earlier. The benefit I claimed was per-group enablement — and that benefit largely isn't available, which changes the answer.</p>
+  </section>
+
+  <div class="cols2">
+    <div class="cl for">
+      <div class="ch">The correction</div>
+      <h3>Managed settings can't scope by group</h3>
+      <p>Server-managed settings apply <b>org-wide and uniformly</b> — per-group configuration is not supported. So you could never have enabled <code>gendd-engineering</code> for engineers and <code>gendd-qa</code> for QA through the channel you're actually using. Splitting would only have bought opt-in through project-level settings, which is a far smaller benefit than I implied.</p>
+    </div>
+    <div class="cl for">
+      <div class="ch">Your own corpus says so</div>
+      <h3>Most capabilities are multi-role already</h3>
+      <p><code>playbooks/on-demand/_index.md</code> lists target roles per playbook, and nearly every one crosses occupations: <code>create-context-pack</code> is Architect + Tech Lead + Backend + Frontend + Fullstack; <code>enhance-requirements</code> is PO + BA + QA; <code>generate-unit-tests</code> is three dev roles + QA Automation. Per-occupation plugins would force an arbitrary home for each, and a frontend dev needing <code>validate-acceptance-criteria</code> would have to install the QA plugin.</p>
+    </div>
+    <div class="cl for">
+      <div class="ch">The practical win</div>
+      <h3>Zero edits, zero retraining</h3>
+      <p>The marketplace entry already points at <code>./claude-plugin-poc</code>, so <code>marketplace.json</code> needs no change at all and <code>enabledPlugins</code> stays as it is. And because namespacing is by plugin name, keeping one plugin means <code>/gendd:enhance-requirements</code> stays exactly what people already type. The six-plugin plan required renaming the one command currently in the field.</p>
+    </div>
+    <div class="cl against">
+      <div class="ch">What you give up · the real one</div>
+      <h3>Independent release cadence</h3>
+      <p>One plugin, one version. A QA skill and a PO skill ship together, so a bad QA release bumps the version everyone has. This is the genuine argument for splitting later, and the signal to watch for: the first time you want to hold one area back while shipping another.</p>
+    </div>
+    <div class="cl against">
+      <div class="ch">What you give up · measurable</div>
+      <h3>~2,000 tokens of standing cost</h3>
+      <p>Every skill's name and description loads at session start. At Anthropic's projected ~59 tokens for a manual-only skill, thirty-four skills is roughly 2,000 tokens in every session — for everyone, including a PO who will never call <code>generate-unit-tests</code>. <b>Measure it with <code>scripts/benchmark-plugin.sh</code> before treating it as a problem.</b> That is what the harness is for, and it is the number that decides whether to split.</p>
+    </div>
+    <div class="cl neutral">
+      <div class="ch">One carve-out</div>
+      <h3>Keep the TestRail MCP separate</h3>
+      <p>MCP tool schemas are always-on for anyone who has the plugin, unlike references which cost nothing until invoked. Bundling the TestRail server into the single plugin taxes every PO and architect with tool definitions they will never call. Configure it per project, or make it the one small second plugin — <code>gendd-testrail</code> — enabled only where QA works.</p>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <section class="sechead">
+    <div class="secnum">03 · THE STRUCTURE</div>
+    <h2>Phase 0 adds nothing. Then one file.</h2>
+    <p class="h2sub">Deliberately smaller than the version this replaces, three times over. <b>The script owns <code>references/</code> and nothing else</b> — that single boundary removes the need for an authoring zone, because a hand-written <code>SKILL.md</code> can simply stay where it already lives. Everything your sketch put in <code>tools/</code>, <code>templates/</code> and <code>guardrails/</code> already exists in the corpus or is parked; none of it needs a home here yet.</p>
+  </section>
+
+  <div class="zkeys">
+    <span><i style="background:var(--dim)"></i>existing or hand-written · <code>the build never touches it</code></span>
+    <span><i style="background:var(--teal)"></i>new, hand-authored</span>
+    <span><i style="background:var(--code)"></i><code>generated</code> — regenerated by the build, committed to git</span>
+  </div>
+
+  <div class="treewrap">
+<pre class="tree"><span class="d">agent-assets/</span>                                  <span class="cm">← single config source · source of truth · read-only</span>
+├── <span class="keep">.claude-plugin/marketplace.json</span>          <span class="cm">NO EDIT — already points at ./claude-plugin-poc</span>
+├── <span class="keep">gendd-analysis/</span>                          <span class="cm">14 workflows · 24 playbooks · 5 pass agents · 20 templates</span>
+├── <span class="keep">sdlc/</span>  <span class="keep">governance/</span>  <span class="keep">templates/</span>          <span class="cm">96 standards · guardrails source · doc skeletons</span>
+├── <span class="keep">code-and-test-templates/</span>                 <span class="cm">Java + Angular codegen and test-gen prompts</span>
+├── <span class="keep">rules-manifest.yaml</span>                      <span class="cm">32 KB glob → rule router</span>
+├── <span class="keep">scripts/</span>                                 <span class="cm">benchmark-plugin.sh · lint-standards.sh</span>
+│
+└── <span class="d">claude-plugin-poc/</span>                       <span class="cm">← the gendd plugin root</span>
+    │
+    ├── <span class="keep">.claude-plugin/plugin.json</span>            <span class="cm">NO EDIT — name: gendd, sets the /gendd: namespace</span>
+    ├── <span class="keep">1-plugin-overview.md  2-  3-  README</span>  <span class="cm">the reasoning that got us here</span>
+    │
+    ├── <span class="new">vendor/adr-writer.skill</span>               <span class="cm">◆ SOURCE — .skill packages, versioned in git</span>
+    ├── <span class="keep">skills/</span>                               <span class="cm">◆ hand-written, EXCEPT any unpacked from vendor/</span>
+    │   ├── <span class="keep">enhance-requirements/SKILL.md</span>     <span class="cm">stays exactly where it is, unedited</span>
+    │   ├── <span class="keep">run-brownfield-analysis/SKILL.md</span>  <span class="cm">hand-written</span>
+    │   └── <span class="gen">adr-writer/</span>                       <span class="cm">GENERATED from vendor/ — the import mechanic</span>
+    │
+    ├── <span class="gen">references/</span>                           <span class="cm">◆ GENERATED — the only directory the script owns</span>
+    │   ├── <span class="gen">enhance-requirements/</span>             <span class="cm">the existing three files, reproduced byte-for-byte</span>
+    │   └── <span class="gen">…</span>                                <span class="cm">~70 corpus copies once all 34 skills are packaged</span>
+    │
+    └── <span class="new">sync_references.py</span>                    <span class="cm">◆ two maps + the check. Python, ~190 lines.</span>
+                                              <span class="cm">   REFS = corpus → references/ · VENDORED = vendor/*.skill → skills/</span>
+                                              <span class="cm">   --check rebuilds to a temp dir and diffs. That is CI.</span>
+
+<span class="cm">PHASE 0 ADDED NOTHING and is COMPLETE: all three copies verified byte-identical</span>
+<span class="cm">to their corpus sources by hand. That is the baseline everything else diffs against.</span>
+
+<span class="cm">Deliberately absent, until something needs it:</span>
+<span class="cm">  no assembly.yaml    the REFS list IS the map — no parser needed at all</span>
+<span class="cm">  no provenance file  reading the script is the trace</span>
+<span class="cm">  no build/ dir       one file does not need a directory</span>
+<span class="cm">  agents/             once a pass agent is inspected and its wrapper shape is known</span>
+<span class="cm">  guardrails          when unparked — hooks, plus policy that lives outside any plugin</span></pre>
+  </div>
+
+  <div class="zones">
+    <div class="zn a">
+      <div class="zt">Read only · the corpus</div>
+      <h3>Never written by anything</h3>
+      <p>The build reads from <code>gendd-analysis/</code>, <code>sdlc/</code>, <code>governance/</code>, <code>templates/</code> and <code>code-and-test-templates/</code>. An edit there is the <b>only</b> way methodology changes — and <code>--check</code> is what makes that edit propagate on purpose rather than by accident.</p>
+    </div>
+    <div class="zn b">
+      <div class="zt">Written by hand · skills/</div>
+      <h3>Authored in place, left alone</h3>
+      <p>A <code>SKILL.md</code> is never derived from anything, so it doesn't belong in a build pipeline. It says what the steps are and which reference files to load; it never restates the method, because the method is in the corpus. <code>enhance-requirements</code> doesn't move at all.</p>
+    </div>
+    <div class="zn c">
+      <div class="zt">Generated · references/ and vendored skills</div>
+      <h3>The only thing the build owns</h3>
+      <p>Committed anyway, because installation is a git clone with no build hook. Generated because of the finding in section 01. Treat a hand edit here the way you'd treat editing <code>node_modules</code> — the next build wipes it, and <code>--check</code> catches it first.</p>
+    </div>
+  </div>
+  </div>
+
+  <hr class="rule">
+
+  <section class="sechead">
+    <div class="secnum">04 · HOW THE COPYING STAYS HONEST</div>
+    <h2>Two maps, one script, one check</h2>
+    <p class="h2sub">Deliberately not part of phase 0 — with one skill and three already-correct copies it would have produced nothing. It arrived with skill #2, and grew a second map with skill #3. Its value is drift detection. Because the corpus and the plugin live in the <b>same repository</b>, that needs no hashes: no lockfile, no provenance file, no separate map. The copy lines are the map and <code>--check</code> is the verifier.</p>
+  </section>
+
+  <div class="flow">
+    <div class="fs">
+      <div class="fn">1 · THE MAP, WHICH IS ALSO THE SCRIPT</div>
+      <h4><code>sync_references.py</code></h4>
+      <p>The one place that says <b>this reference came from this corpus file</b>. The narrow reason it can't be inferred instead: <code>create-context-pack.md</code> exists in <b>both</b> <code>workflows/</code> and <code>playbooks/on-demand/</code> — as do <code>generate-ide-rules.md</code>, <code>generate-unit-tests.md</code>, <code>identify-test-gaps.md</code> and <code>generate-architecture-diagrams.md</code>. Five deliberate basename collisions, because the workflow/playbook pairing is the corpus's own design. A generic "find the file with the same name and diff it" check would silently compare against the wrong source for exactly the capabilities you are most likely to package.</p>
+      <p>Written as a Python list rather than a separate YAML map: the declaration then sits next to the code that acts on it, needs no parser, and reviews as a one-line diff. Python rather than shell because the engineers are on Windows and this repo already depends on it — the TestRail MCP server, <code>lint_c4.py</code> and <code>scan_pipeline.py</code> are all Python. It runs unchanged in PowerShell, Git Bash, macOS and Linux.</p>
+      <pre class="code"><span class="cm"># sync_references.py — the two maps and the check</span>
+<span class="kw">REFS</span> = [   <span class="cm"># corpus documents → references/&lt;skill&gt;/</span>
+    (<span class="st">"enhance-requirements"</span>, <span class="st">"gendd-analysis/playbooks/on-demand/enhance-requirements.md"</span>),
+    (<span class="st">"enhance-requirements"</span>, <span class="st">"gendd-analysis/workflows/enhance-acceptance-criteria.md"</span>),
+    (<span class="st">"enhance-requirements"</span>, <span class="st">"gendd-analysis/templates/requirements-enhancement.md"</span>),
+    (<span class="st">"run-brownfield-analysis"</span>, <span class="st">"gendd-analysis/playbooks/onboarding/run-brownfield-analysis.md"</span>),
+    <span class="cm"># … and the four pass agents, the guidelines, the methodology</span>
+]
+
+<span class="kw">VENDORED</span> = [   <span class="cm"># vendor/*.skill → skills/&lt;name&gt;/, unpacked verbatim</span>
+    <span class="st">"adr-writer.skill"</span>,
+]</pre>
+    </div>
+    <div class="fs">
+      <div class="fn">2 · THE CHECK</div>
+      <h4><code>--check</code>, and why it is the whole point</h4>
+      <p>Same code, a temp destination, then <code>diff -r</code>. Because the corpus and the plugin live in the <b>same repository</b>, verification needs no hashes and no lockfile — it can simply rebuild and compare. One mechanism, both failure modes:</p>
+      <p>— <b>A corpus file changed and nobody re-synced.</b> The temp build differs from the committed copies, so the plugin is shipping stale text. This is the failure that already happened to <code>enhance-requirements</code>.</p>
+      <p>— <b>Someone hand-edited a generated file.</b> Same diff, opposite direction. Worth catching, because the next sync would silently wipe their change.</p>
+      <p>Wire it into CI beside <code>lint-standards.sh</code>, with <code>claude plugin validate --strict</code> in the same job. Deleting the destination before rebuilding is what makes a removed entry actually disappear rather than linger as an orphan.</p>
+    </div>
+    <div class="fs">
+      <div class="fn">3 · THE LOOP</div>
+      <h4>Local, before anything is published</h4>
+      <p>No marketplace entry needed — <code>--plugin-dir</code> loads a plugin straight off disk, and <code>/reload-plugins</code> picks up a change without restarting the session.</p>
+      <pre class="code"><span class="cm"># nothing published, nothing installed</span>
+python claude-plugin-poc/sync_references.py
+claude plugin validate ./claude-plugin-poc --strict
+claude --plugin-dir ./claude-plugin-poc
+
+<span class="cm"># in session</span>
+/gendd:create-context-pack
+<span class="cm"># edit skills/…/SKILL.md, then:</span>
+/reload-plugins</pre>
+      <p>Adding a skill is a new <code>skills/&lt;name&gt;/SKILL.md</code> plus two or three <code>ref</code> lines. That is the whole authoring loop.</p>
+    </div>
+  </div>
+  </div>
+
+  <hr class="rule">
+
+  <section class="sechead">
+    <div class="secnum">05 · PHASE 0 — THE WORKED EXAMPLE</div>
+    <h2>Verify what already works, and build nothing — <span style="color:var(--teal)">complete</span></h2>
+    <p class="h2sub">The cheapest possible first move, and it answered the only question that mattered: <b>are the copies in the plugin still identical to the corpus documents they came from?</b> <b style="color:var(--teal)">They are — all three, verified byte-for-byte.</b> Had one differed, the finding would have been that the corpus had already moved on without the plugin.</p>
+  </section>
+
+  <div class="flow">
+    <div class="fs">
+      <div class="fn">WHAT CHANGES</div>
+      <h4>Nothing. Not one file.</h4>
+      <p>No script, no directory, no move. <code>skills/enhance-requirements/SKILL.md</code> stays where it is; the three files in <code>references/</code> stay where they are. The plugin is already correct — it was assembled by hand with <code>cmp</code>-verified fidelity, and the mapping is already written down in prose in <code>README.md</code> and in <code>SKILL.md</code>'s own reference table.</p>
+      <p>What phase 0 actually does is <b>establish the fact</b> that those copies still match their sources, so that every later phase has a known-good starting point to diff against.</p>
+    </div>
+    <div class="fs">
+      <div class="fn">THE PROOF</div>
+      <h4>Three diffs, run by hand</h4>
+      <p>If these are silent, the plugin is in sync with the corpus and the whole premise of the plan holds.</p>
+      <pre class="code"><span class="kw">cd</span> agent-assets
+R=claude-plugin-poc/references/enhance-requirements
+
+diff <span class="st">"$R/enhance-requirements.md"</span> \
+     gendd-analysis/playbooks/on-demand/enhance-requirements.md
+diff <span class="st">"$R/enhance-acceptance-criteria.md"</span> \
+     gendd-analysis/workflows/enhance-acceptance-criteria.md
+diff <span class="st">"$R/requirements-enhancement.md"</span> \
+     gendd-analysis/templates/requirements-enhancement.md
+
+<span class="cm"># and confirm the plugin itself is sound</span>
+claude plugin validate ./claude-plugin-poc --strict</pre>
+      <p>If any of them is <b>not</b> silent, that is the finding: the corpus has already moved on without the plugin, and phase 1 starts by deciding which side is right.</p>
+    </div>
+    <div class="fs">
+      <div class="fn">THEN, AND ONLY THEN</div>
+      <h4>Skill #2 is what pays for the script</h4>
+      <p>Add <code>create-context-pack</code>: a new <code>skills/create-context-pack/SKILL.md</code> and three more corpus files copied into <code>references/</code>. That is the moment the by-hand approach starts to cost more than the script — six files to keep straight instead of three, across two capabilities whose sources sit in different corpus directories.</p>
+      <p>Write <code>sync_references.py</code> here, with both skills in it, and the earlier diffs become <code>--check</code> in CI.</p>
+    </div>
+    <div class="fs">
+      <div class="fn">NOT IN THIS PHASE</div>
+      <h4>Nothing is published or retired</h4>
+      <p>No marketplace edit, no managed-settings change, no version bump, no new file in git. <code>/gendd:enhance-requirements</code> behaves exactly as it does today for everyone who has it.</p>
+      <p>Phase 0 is done when the four commands above pass. It is a verification step, not a construction step — and that is the point: it establishes the baseline the rest of the plan diffs against.</p>
+    </div>
+  </div>
+  </div>
+
+  <hr class="rule">
+
+  <section class="sechead">
+    <div class="secnum">06 · THE THIRTY-FOUR SKILLS</div>
+    <h2>One namespace, grouped by phase for reading</h2>
+    <p class="h2sub">Grouping here is editorial, not structural — they all live in one plugin and all answer to <code>/gendd:</code>. Names are kept, never reinvented: the existing <code>.skill</code> name wins, then the corpus playbook filename, and a new name is coined only for the five capabilities that have none. <span class="lin corpus" style="vertical-align:1px">CORPUS</span> builds from <code>gendd-analysis/</code>; <span class="lin import" style="vertical-align:1px">IMPORT</span> brings in an existing <code>.skill</code>; <span class="lin author" style="vertical-align:1px">AUTHOR</span> must be written from nothing.</p>
+  </section>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Skill</th><th>Source</th><th>Built from</th><th>Step</th></tr></thead>
+      <tbody>
+        <tr class="pg"><td colspan="4"><span class="pgn">Phase 1 · Plan &amp; Requirements</span><span class="pgm">Agentic PM · PO · BA · UX</span></td></tr>
+        <tr><td><code>enhance-requirements</code></td><td><span class="lin live">LIVE</span></td><td>Already shipping. Rebuilt through the pipeline in phase 0.</td><td class="stp">04</td></tr>
+        <tr><td><code>prd-writer</code></td><td><span class="lin import">IMPORT</span></td><td><code>prd-writer.skill</code> (4 reference docs incl. interview questions) + <code>sdlc/product/product-requirements-doc.md</code></td><td class="stp">01</td></tr>
+        <tr><td><code>stories-from-source</code></td><td><span class="lin import">IMPORT</span></td><td><code>stories-from-source_v2.skill</code> — retire the non-<code>_v2</code> copy first</td><td class="stp">01</td></tr>
+        <tr><td><code>jira-story-estimator</code></td><td><span class="lin import">IMPORT</span></td><td><code>jira-story-estimator.skill</code> + <code>sdlc/product/definition-of-ready.md</code></td><td class="stp">08</td></tr>
+        <tr><td><code>audit-ui-patterns</code></td><td><span class="lin corpus">CORPUS</span></td><td><code>playbooks/on-demand/audit-ui-patterns.md</code></td><td class="stp">02</td></tr>
+
+        <tr class="pg"><td colspan="4"><span class="pgn">Phase 2 · Design &amp; Architecture</span><span class="pgm" style="color:var(--coral)">create-context-pack is NOT here — DEPRECATED upstream</span><span class="pgm">Tech Lead · Architect</span></td></tr>
+        <tr><td><code>run-brownfield-analysis</code></td><td><span class="lin live">DONE</span></td><td><code>playbooks/onboarding/run-brownfield-analysis.md</code> + <code>workflows/brownfield-repository-analysis.md</code> + <code>templates/documentation-guidelines.md</code> + the four pass agents. <b>Untested against a real repo.</b></td><td class="stp">03</td></tr>
+        <tr><td><code>generate-context-areas</code></td><td><span class="lin corpus">CORPUS</span></td><td><code>workflows/generate-context-areas.md</code> + <code>templates/context-area.md</code> + the 16 <code>knowledge/sdlc-areas/*</code>. Phase 3 — needs brownfield output.</td><td class="stp">03</td></tr>
+        <tr><td><code>detect-and-generate-standards</code></td><td><span class="lin corpus">CORPUS</span></td><td><code>workflows/detect-and-generate-standards.md</code> + <code>templates/standards/*</code>. Phase 4.</td><td class="stp">03 · 11</td></tr>
+        <tr><td><code>analyze-and-generate</code></td><td><span class="lin corpus">CORPUS</span></td><td><code>workflows/analyze-and-generate.md</code> — the corpus's own master entry point, five phases with human gates. <b>Package last</b>, once its phases exist as skills.</td><td class="stp">03</td></tr>
+        <tr><td><code>greenfield-analysis</code></td><td><span class="lin corpus">CORPUS</span></td><td><code>workflows/greenfield-analysis.md</code> — 4 KB against brownfield's 18, so expect to write into it</td><td class="stp">03</td></tr>
+        <tr><td><code>adr-writer</code></td><td><span class="lin live">DONE</span></td><td>Vendored from <code>adr-writer.skill</code>, lossless. <b>Proves the import mechanic</b> for the other 12. Untested against a real decision.</td><td class="stp">06 · 10</td></tr>
+        <tr><td><code>architecture-diagram-generator</code></td><td><span class="lin import">IMPORT</span></td><td>Two lineages: the <code>.skill</code> ships <code>lint_c4.py</code> and LikeC4 references; the corpus ships <code>workflows/generate-architecture-diagrams.md</code>. Pick one.</td><td class="stp">06</td></tr>
+
+        <tr class="pg"><td colspan="4"><span class="pgn">Phase 3 · Build</span><span class="pgm">Engineer · DBA — three of the five gaps</span></td></tr>
+        <tr><td><code>implementation-plan</code></td><td><span class="lin author">AUTHOR</span></td><td><b>Nothing exists.</b> Write it first — step 14 is defined as reviewing against this artifact, so its absence breaks two steps.</td><td class="stp">09</td></tr>
+        <tr><td><code>spec-authoring</code></td><td><span class="lin author">AUTHOR</span></td><td><b>The "how" half.</b> <code>adr-writer</code> covers what and why; nothing covers files, tasks and spike results.</td><td class="stp">10</td></tr>
+        <tr><td><code>spike-doc</code></td><td><span class="lin author">AUTHOR</span></td><td><b>Nothing exists.</b> Nearest shape is <code>templates/tech-debt-template.md</code>.</td><td class="stp">12</td></tr>
+        <tr><td><code>generate-ide-rules</code></td><td><span class="lin corpus">CORPUS</span></td><td><code>workflows/generate-ide-rules.md</code> + all five <code>templates/ide-rules/*</code> + <code>knowledge/ide-formats/*</code>. Also the L1 rules generator.</td><td class="stp">11</td></tr>
+        <tr><td><code>generate-unit-tests</code></td><td><span class="lin corpus">CORPUS</span></td><td><code>workflows/generate-unit-tests.md</code> + <code>code-and-test-templates/test/java-</code> and <code>angular-unit-test-generation.md</code></td><td class="stp">11 · 17</td></tr>
+        <tr><td><code>generate-standards</code></td><td><span class="lin corpus">CORPUS</span></td><td><code>playbooks/on-demand/generate-standards.md</code> + <code>workflows/detect-and-generate-standards.md</code> + <code>templates/standards/*</code></td><td class="stp">11</td></tr>
+        <tr><td><code>analyze-database-schema</code></td><td><span class="lin corpus">CORPUS</span></td><td><code>playbooks/on-demand/analyze-database-schema.md</code> + <code>sdlc/database/**</code></td><td class="stp">11</td></tr>
+
+        <tr class="pg"><td colspan="4"><span class="pgn">Phase 4 · Code Review &amp; Merge</span><span class="pgm">AI · Tech Anchors · Reviewer</span></td></tr>
+        <tr><td><code>pr-pre-review</code></td><td><span class="lin author">AUTHOR</span></td><td><b>New name, nothing to import.</b> The standards exist — <code>sdlc/version-control/code-review.md</code>, <code>github/pull-requests.md</code>, <code>rules-manifest.yaml</code> to route the diff — but no automation is wired to them. This is also the skill the GitHub Action calls.</td><td class="stp">13</td></tr>
+
+        <tr class="pg"><td colspan="4"><span class="pgn">Phase 5 · Test &amp; QA</span><span class="pgm">QA Engineer · QA Automation</span></td></tr>
+        <tr><td><code>test-gap-analyzer</code></td><td><span class="lin import">IMPORT</span></td><td>The <code>.skill</code> ships <code>scripts/</code> and <code>references/</code>, so it wins over <code>workflows/identify-test-gaps.md</code></td><td class="stp">16</td></tr>
+        <tr><td><code>review-test-coverage</code></td><td><span class="lin corpus">CORPUS</span></td><td><code>playbooks/recurring/review-test-coverage.md</code> + <code>sdlc/quality-assurance/coverage.md</code></td><td class="stp">16</td></tr>
+        <tr><td><code>qa-test-case-writer</code></td><td><span class="lin import">IMPORT</span></td><td><code>qa-test-case-writer</code> (21 KB SKILL.md + Context.md) + <code>workflows/generate-tests-from-gherkin.md</code></td><td class="stp">17</td></tr>
+        <tr><td><code>test-automation-implementer</code></td><td><span class="lin import">IMPORT</span></td><td><code>test-automation-implementer</code> + <code>workflows/automate-integration-testing.md</code> + the 7 stack testing guides</td><td class="stp">17</td></tr>
+        <tr><td><code>testrail-publisher</code></td><td><span class="lin import">IMPORT</span></td><td><code>testrail-publisher</code>. <b>The MCP server goes in a separate plugin</b> — see the carve-out in section 02 — and the live <code>.env</code> must not travel.</td><td class="stp">17</td></tr>
+        <tr><td><code>validate-acceptance-criteria</code></td><td><span class="lin corpus">CORPUS</span></td><td><code>playbooks/on-demand/validate-acceptance-criteria.md</code> — drives Playwright MCP</td><td class="stp">18</td></tr>
+        <tr><td><code>run-assisted-testing</code></td><td><span class="lin corpus">CORPUS</span></td><td><code>playbooks/on-demand/run-assisted-testing.md</code></td><td class="stp">18</td></tr>
+
+        <tr class="pg"><td colspan="4"><span class="pgn">Phase 6 · Release &amp; Deploy</span><span class="pgm">Release owner · DevOps · SRE · Support · Tech writer</span></td></tr>
+        <tr><td><code>release-evidence-packet</code></td><td><span class="lin import">IMPORT</span></td><td><code>release-evidence-packet.skill</code> (ships <code>verify_evidence.py</code>) + <code>gendd-analysis/templates/validation-packet.md</code></td><td class="stp">19</td></tr>
+        <tr><td><code>incremental-doc-update</code></td><td><span class="lin corpus">CORPUS</span></td><td><code>workflows/incremental-doc-update.md</code> + <code>playbooks/recurring/refresh-context-pack.md</code> + <code>refresh-context-areas.md</code>. The skill the CI Action calls.</td><td class="stp">20</td></tr>
+        <tr><td><code>run-delta-analysis</code></td><td><span class="lin corpus">CORPUS</span></td><td><code>playbooks/on-demand/run-delta-analysis.md</code> — what actually changed, feeding the doc update</td><td class="stp">20</td></tr>
+        <tr><td><code>cicd-pipeline-audit</code></td><td><span class="lin import">IMPORT</span></td><td><code>cicd-pipeline-audit.skill</code> (ships <code>scan_pipeline.py</code> + the OWASP CI/CD checklist) + <code>playbooks/on-demand/audit-ci-cd-pipeline.md</code></td><td class="stp">22</td></tr>
+        <tr><td><code>audit-observability</code></td><td><span class="lin corpus">CORPUS</span></td><td><code>playbooks/on-demand/audit-observability.md</code> + <code>sdlc/observability/**</code></td><td class="stp">22</td></tr>
+        <tr><td><code>generate-support-documentation</code></td><td><span class="lin corpus">CORPUS</span></td><td><code>playbooks/on-demand/generate-support-documentation.md</code></td><td class="stp">22</td></tr>
+
+        <tr class="pg"><td colspan="4"><span class="pgn">Cross-cutting</span><span class="pgm">everyone — layer 3 of the rules architecture</span></td></tr>
+        <tr><td><code>lookup-standard</code></td><td><span class="lin author">AUTHOR</span></td><td>New name. A thin skill over <code>rules-manifest.yaml</code> that resolves a rule ID or file glob and loads <b>only</b> the matching standard. Carries all 96 <code>sdlc/**</code> files — which cost nothing until invoked.</td><td class="stp">all</td></tr>
+        <tr><td><code>compile-rules</code></td><td><span class="lin author">AUTHOR</span></td><td>New name. Turns <code>rules-manifest.yaml</code> into <code>.claude/rules/*.md</code> with <code>paths:</code> frontmatter for a target repo. The standards already carry <code>applies_to: ["**/*"]</code>, so this is largely a field rename.</td><td class="stp">11</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr class="rule">
+
+  <section class="sechead">
+    <div class="secnum">07 · SEQUENCE AFTER PHASE 0</div>
+    <h2>Highest return first, and the gaps last</h2>
+  </section>
+
+  <div class="ph">
+    <div class="pr p1">
+      <div class="pl"><div class="pn">PHASE 1</div><div class="pnm">Package what's already written</div><div class="ptouch">Adds skills + the<br>sync script.<br>Publishes at the end.</div></div>
+      <div class="mid">
+        <p>The six steps whose method exists in full and can't be invoked: <b>02, 03, 05, 11, 18, 20</b>. Wrappers only, no authoring — the highest return in the plan. Order: <code>create-context-pack</code> → <code>incremental-doc-update</code> → <code>generate-ide-rules</code> → the rest. Context in, context maintained, then everything else.</p>
+        <p>Run <code>scripts/benchmark-plugin.sh</code> once around eight skills and again at fourteen. Two data points tell you the real per-skill standing cost, which is the number that decides whether one plugin holds.</p>
+      </div>
+      <div class="rgt">
+        <div class="rl">Publish when</div>
+        <p>The first three are producing output a Tech Lead accepts. Then bump the version — one commit and a push, since <code>autoUpdate</code> is already on.</p>
+      </div>
+    </div>
+
+    <div class="pr p2">
+      <div class="pl"><div class="pn">PHASE 2</div><div class="pnm">Fold in the .skill packages</div><div class="ptouch">Needs a decision<br>before any code.</div></div>
+      <div class="mid">
+        <p>Nine <code>.skill</code> packages plus the QA toolset come from a different lineage than the corpus, and six capabilities are covered by both. <b>Decide the canonical lineage per capability first</b> — otherwise you ship two answers to the same question in one namespace.</p>
+        <p>Rule of thumb: where a <code>.skill</code> ships working scripts (<code>test-gap-analyzer</code>, <code>cicd-pipeline-audit</code>, <code>release-evidence-packet</code>, <code>architecture-diagram-generator</code>), it wins. Where it's prose duplicating a workflow, the corpus wins.</p>
+        <p>Housekeeping that must land here: the duplicate <code>requirements-enhancer</code> packages, the <code>stories-from-source</code> / <code>_v2</code> pair, the stray <code>jira-story-estimator 1.skill</code> filename, and the live <code>.env</code> in the TestRail MCP folder.</p>
+      </div>
+      <div class="rgt">
+        <div class="rl">Also here</div>
+        <p>The one small second plugin for the TestRail MCP server, enabled only where QA works.</p>
+      </div>
+    </div>
+
+    <div class="pr p3">
+      <div class="pl"><div class="pn">PHASE 3</div><div class="pnm">Author the five gaps</div><div class="ptouch">Adds to the corpus,<br>deliberately.</div></div>
+      <div class="mid">
+        <p><code>implementation-plan</code>, <code>spec-authoring</code>, <code>spike-doc</code>, <code>pr-pre-review</code>, and the <code>lookup-standard</code> / <code>compile-rules</code> pair. This is the one phase that <b>should</b> add to <code>gendd-analysis/</code>: new methodology belongs in the corpus as a workflow with the skill as its wrapper — write it straight into the plugin and the source of truth develops a hole.</p>
+        <p>Start with <code>implementation-plan</code>. It unblocks step 14, which is defined as judging a PR against the implementation plan.</p>
+      </div>
+      <div class="rgt">
+        <div class="rl">Owner</div>
+        <p>Engineering with a pilot POD. Real methodology work, not packaging — budget accordingly.</p>
+      </div>
+    </div>
+
+    <div class="pr p4">
+      <div class="pl"><div class="pn">PHASE 4</div><div class="pnm">The Desktop build</div><div class="ptouch">Second output<br>from the same map.</div></div>
+      <div class="mid">
+        <p>Product, design and QA people reach skills through the chat console at <code>admin-settings/plugins</code>, which does <b>not</b> reach Claude Code — two consoles, two packages. Same references, a second output target, and one field flipped: <code>disable-model-invocation</code> is right for an engineer typing a command and wrong for chat, where the description is what makes a skill trigger. <b>This is the first thing that genuinely needs more than the one script</b> — a second target means a skill body has to be emitted with different frontmatter, so this is where a source-for-bodies earns its place, and not before.</p>
+      </div>
+      <div class="rgt">
+        <div class="rl">Note</div>
+        <p>GitHub sync on that console requires a private or internal repo, and a <code>.zip</code> needs <code>.claude-plugin/</code> at the archive root, not nested.</p>
+      </div>
+    </div>
+
+    <div class="pr p5">
+      <div class="pl"><div class="pn">LATER</div><div class="pnm">Split, only on a signal</div><div class="ptouch">Not on a schedule.</div></div>
+      <div class="mid">
+        <p>Two signals, both measurable rather than felt: the benchmarked standing cost of the skill descriptions becomes material, or you want to hold one area's release back while shipping another. Until one of those happens, one plugin is the simpler system.</p>
+        <p>Splitting later is cheap on the build side — change the map, rerun the script — and expensive on the human side, because the namespace changes. Use the marketplace entry's <code>renames</code> field to carry identity across when the day comes.</p>
+      </div>
+      <div class="rgt">
+        <div class="rl">Also parked</div>
+        <p><code>guardrails/</code>: hooks for deterministic enforcement, governance text compiled into references, and — outside any plugin — the permission deny-list in managed settings.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <section class="sechead">
+    <div class="secnum">08 · DECIDE OR TEST BEFORE PHASE 1</div>
+    <h2>Three items, one of them a fifteen-minute experiment</h2>
+  </section>
+
+  <div class="open">
+    <div class="op">
+      <div class="ot"><span class="sev md"></span>Test the clone behaviour yourself</div>
+      <div class="od">Whether a relative-path <code>source</code> clones the whole repo or only the plugin directory is undocumented. If the whole repo lands on disk, <code>${CLAUDE_PLUGIN_ROOT}/../../</code> would remove the copying entirely and shrink this design a lot. <b>Install the plugin from the marketplace and list the cache directory</b> — that's the whole experiment. I'd still ship the build step either way, because undocumented behaviour can change under you, but it's worth knowing what you're buying.</div>
+    </div>
+    <div class="op">
+      <div class="ot"><span class="sev md"></span>Generated files in git need a convention</div>
+      <div class="od"><code>references/</code> becomes generated but stays committed, which is unusual enough to surprise a contributor. Say so where they'll see it: a line in <code>README.md</code>, a <code>.gitattributes</code> marking it <code>linguist-generated</code> so diffs collapse in review, and <code>--check</code> in CI as the actual enforcement.</div>
+    </div>
+    <div class="op">
+      <div class="ot"><span class="sev lo"></span>Two "written" skills are thinner than they look</div>
+      <div class="od"><code>greenfield-analysis.md</code> is 4 KB against brownfield's 18 KB, and the bundled <code>enhance-requirements</code> copies carry cross-links that were already dead upstream. Packaging exposes thin content rather than hiding it — budget for filling those in during phase 1 rather than discovering them in phase 3.</div>
+    </div>
+  </div>
+
+  <footer>
+    Plugin mechanics verified 2026-09-01 against <a href="https://code.claude.com/docs/en/plugins-reference">the plugins reference</a> (plugin.json schema, component paths, agent frontmatter, settings.json keys), <a href="https://code.claude.com/docs/en/plugins">create plugins</a> (directory layout, <code>--plugin-dir</code>, validate, <code>/reload-plugins</code>), <a href="https://code.claude.com/docs/en/plugin-marketplaces">plugin marketplaces</a> (nested sources, <code>git-subdir</code> sparse clone, <code>renames</code>) and <a href="https://code.claude.com/docs/en/server-managed-settings">server-managed settings</a> (org-wide, no per-group scoping). Items called undocumented are genuinely absent from the docs, not merely unfound.<br>
+    Corpus paths are relative to <code>accurate/agent-assets/</code> as read on 2026-09-01. Distribution facts, token figures and the invocation-control reasoning come from <code>claude-plugin-poc/1-plugin-overview.md</code>, <code>2-distribution-guide.md</code> and <code>3-token-benchmarks.md</code>. Supersedes the six-plugin version of this plan.<br>
+    Internal working draft · confidential.
+  </footer>
+
+</div>
+
+</body>
+</html>
