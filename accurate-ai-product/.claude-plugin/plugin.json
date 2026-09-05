@@ -1,0 +1,9 @@
+{
+  "name": "accurate-ai-product",
+  "description": "Product & planning skills for Accurate AI: write PRDs, turn source material into traceable user stories, expand requirements into testable acceptance criteria, and estimate Jira story points.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": {
+    "name": "Felipe Augusto"
+  }
+}

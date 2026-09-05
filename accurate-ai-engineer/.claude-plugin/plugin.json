@@ -1,0 +1,9 @@
+{
+  "name": "accurate-ai-engineer",
+  "description": "Engineering & QA skills for Accurate AI: ADRs, C4 architecture diagrams, CI/CD pipeline security audits, QA test-case authoring, TestRail publishing, test-gap analysis, test-automation implementation, and release-evidence packets.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": {
+    "name": "Felipe Augusto"
+  }
+}

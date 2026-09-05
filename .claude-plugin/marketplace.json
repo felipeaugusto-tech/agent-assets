@@ -7,9 +7,14 @@
   },
   "plugins": [
     {
-      "name": "gendd",
-      "description": "Requirements enhancement: turn a vague requirement into a structured, testable spec with Given/When/Then acceptance criteria.",
-      "source": "./claude-plugin-poc"
+      "name": "accurate-ai-product",
+      "description": "Product & planning skills for Accurate AI: write PRDs, turn source material into traceable user stories, expand requirements into testable acceptance criteria, and estimate Jira story points.",
+      "source": "./accurate-ai-product"
+    },
+    {
+      "name": "accurate-ai-engineer",
+      "description": "Engineering & QA skills for Accurate AI: ADRs, C4 architecture diagrams, CI/CD pipeline security audits, QA test-case authoring, TestRail publishing, test-gap analysis, test-automation implementation, and release-evidence packets.",
+      "source": "./accurate-ai-engineer"
     }
   ]
 }
