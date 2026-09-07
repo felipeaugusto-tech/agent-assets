@@ -89,9 +89,14 @@ Add `.claude-plugin/marketplace.json` at the repository root. **[docs]** — [Cr
   "owner": { "name": "Felipe Augusto" },
   "plugins": [
     {
-      "name": "gendd",
-      "description": "Requirements enhancement: turn a vague requirement into a structured, testable spec with Given/When/Then acceptance criteria.",
-      "source": "./claude-plugin-poc"
+      "name": "accurate-ai-product",
+      "description": "Product & planning skills for Accurate AI: write PRDs, turn source material into traceable user stories, and estimate Jira story points.",
+      "source": "./accurate-ai-product"
+    },
+    {
+      "name": "accurate-ai-engineer",
+      "description": "Engineering & QA skills for Accurate AI: ADRs, C4 architecture diagrams, CI/CD pipeline security audits, QA test-case authoring, TestRail publishing, test-gap analysis, test-automation implementation, and release-evidence packets.",
+      "source": "./accurate-ai-engineer"
     }
   ]
 }
@@ -123,7 +128,10 @@ Two options, and the difference matters.
   "extraKnownMarketplaces": {
     "hatchworks": { "source": { "source": "github", "repo": "your-org/your-repo" } }
   },
-  "enabledPlugins": { "gendd@hatchworks": true }
+  "enabledPlugins": {
+    "accurate-ai-product@hatchworks": true,
+    "accurate-ai-engineer@hatchworks": true
+  }
 }
 ```
 
@@ -139,6 +147,8 @@ Requirements: **[docs]**
 ---
 
 ## What we actually did
+
+*This section documents the original rollout of the single-plugin `gendd` POC, kept as-is for historical/verified record. The plugin has since been split into `accurate-ai-product` and `accurate-ai-engineer` (see the Step 1 sample above); a re-publish of managed settings under the new plugin names hasn't been re-verified on our machines yet.*
 
 Path B, Option B2. Published at `claude.ai/admin-settings/claude-code` → Managed settings:
 

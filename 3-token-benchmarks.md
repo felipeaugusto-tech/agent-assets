@@ -9,6 +9,8 @@
 | **Date** | 2026-08-27 |
 | **Related** | [1-plugin-overview.md](1-plugin-overview.md) · [2-distribution-guide.md](2-distribution-guide.md) |
 
+> **Historical baseline.** These numbers were measured against the original single-skill `gendd` plugin (`enhance-requirements`) before it was split into `accurate-ai-product` and `accurate-ai-engineer`. They are not re-measured for the new plugins — treat them as a methodology reference and an order-of-magnitude illustration of the "idle plugin is free, invoked skill is not" pattern, not as current numbers for either plugin.
+
 ## How to read the source markers
 
 Unlike the companion documents, **every number on this page is measured on our own machines** — marked **[verified]** where it matters most. The one figure we did *not* measure is called out explicitly as Anthropic's projection in [What this method cannot measure](#what-this-method-cannot-measure). Nothing here is an estimate unless it says so.

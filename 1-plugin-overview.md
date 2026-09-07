@@ -1,6 +1,6 @@
 # Claude Code Plugins — Overview
 
-**A plugin is a versioned, shareable bundle of capabilities that Claude Code loads on demand — this document explains what that means and how the `gendd` plugin is built.**
+**A plugin is a versioned, shareable bundle of capabilities that Claude Code loads on demand — this document explains what that means and how the `accurate-ai-product` and `accurate-ai-engineer` plugins are built.**
 
 | Field | Value |
 |-------|-------|
@@ -26,7 +26,7 @@ Every claim about Claude Code behavior in this document carries one of two marke
 - [Why a plugin beats pasting instructions](#why-a-plugin-beats-pasting-instructions)
 - [Anatomy of a plugin](#anatomy-of-a-plugin)
 - [Who decides when a skill runs](#who-decides-when-a-skill-runs)
-- [How the gendd plugin is built](#how-the-gendd-plugin-is-built)
+- [How the two plugins are built](#how-the-two-plugins-are-built)
 - [Related Resources](#related-resources)
 
 ---
@@ -39,7 +39,7 @@ A **skill** is the piece that matters most here. It is a `SKILL.md` file holding
 
 Skills follow the [Agent Skills](https://agentskills.io) open standard, which works across multiple AI tools. Claude Code extends that standard with invocation control, subagent execution, and dynamic context injection. **[docs]** — [Extend Claude with skills](https://code.claude.com/docs/en/skills)
 
-Plugin skills are **namespaced by the plugin name**, so a plugin named `gendd` providing a skill named `enhance-requirements` yields `/gendd:enhance-requirements`. **[docs]** — [Discover and install prebuilt plugins](https://code.claude.com/docs/en/discover-plugins)
+Plugin skills are **namespaced by the plugin name**, so a plugin named `accurate-ai-product` providing a skill named `prd-writer` yields `/accurate-ai-product:prd-writer`. **[docs]** — [Discover and install prebuilt plugins](https://code.claude.com/docs/en/discover-plugins)
 
 ---
 
@@ -61,20 +61,19 @@ The cost argument is not hypothetical — see [3-token-benchmarks.md](3-token-be
 ## Anatomy of a plugin
 
 ```text
-claude-plugin-poc/                        <- the plugin root
+accurate-ai-engineer/                     <- one plugin root (accurate-ai-product is the same shape)
 ├── .claude-plugin/
 │   └── plugin.json                       <- manifest: name, description, version
-├── skills/
-│   └── enhance-requirements/
-│       └── SKILL.md                      <- the skill: frontmatter + instructions
-└── references/
-    └── enhance-requirements/             <- supporting files, loaded on demand
-        ├── enhance-requirements.md
-        ├── enhance-acceptance-criteria.md
-        └── requirements-enhancement.md
+└── skills/
+    └── adr-writer/
+        ├── SKILL.md                      <- the skill: frontmatter + instructions
+        └── references/                   <- supporting files, loaded on demand
+            └── adr-template.md
 ```
 
-One file lives outside the plugin, at the repository root, and turns the repo into a **marketplace**:
+Each skill folder carries its own `references/` (and, where needed, `scripts/`) alongside its `SKILL.md` — there is no repo-wide `references/` tree; every skill is self-contained.
+
+One file lives outside any plugin, at the repository root, and turns the repo into a **marketplace**:
 
 ```text
 .claude-plugin/marketplace.json           <- lists the plugins this repo offers
@@ -84,13 +83,14 @@ One file lives outside the plugin, at the repository root, and turns the repo in
 |---|---|---|
 | `.claude-plugin/plugin.json` | Yes | Identifies the plugin. `name` sets the command namespace |
 | `skills/<name>/SKILL.md` | — | A skill. A plugin may have many, or none |
-| `references/` | No | Any supporting files the skill reads at runtime |
+| `skills/<name>/references/`, `skills/<name>/scripts/` | No | Supporting files that skill reads at runtime |
 | `.claude-plugin/marketplace.json` | For sharing | Catalog entry so others can install it |
 
 Validate any plugin or marketplace manifest before shipping. **[docs]** — [Plugins reference](https://code.claude.com/docs/en/plugins-reference)
 
 ```bash
-claude plugin validate ./claude-plugin-poc --strict
+claude plugin validate ./accurate-ai-product --strict
+claude plugin validate ./accurate-ai-engineer --strict
 ```
 
 Reference files are addressed from `SKILL.md` with `${CLAUDE_PLUGIN_ROOT}`, which resolves to the installed plugin's directory wherever it lands on disk.
@@ -98,6 +98,8 @@ Reference files are addressed from `SKILL.md` with `${CLAUDE_PLUGIN_ROOT}`, whic
 ---
 
 ## Who decides when a skill runs
+
+*The worked example in this section (`enhance-requirements`) is kept from the original single-skill `gendd` POC as illustrative methodology — it predates the split into `accurate-ai-product` and `accurate-ai-engineer` and isn't one of the skills either plugin ships today. The underlying control question and its trade-offs still apply to every skill in both plugins.*
 
 **This is the most reusable decision in the whole plugin, and the direct cause of its token profile.**
 
@@ -143,25 +145,22 @@ The measured cost of that deferral is in [3-token-benchmarks.md](3-token-benchma
 
 ---
 
-## How the gendd plugin is built
+## How the two plugins are built
+
+The original `gendd` proof of concept has been split by audience into two
+plugins, each installed and versioned independently:
+
+| Plugin | Namespace | Skills |
+|---|---|---|
+| `accurate-ai-product` | `/accurate-ai-product:<skill>` | `prd-writer`, `stories-from-source`, `jira-story-estimator` |
+| `accurate-ai-engineer` | `/accurate-ai-engineer:<skill>` | `adr-writer`, `architecture-diagram-generator`, `cicd-pipeline-audit`, `qa-test-case-writer`, `release-evidence-packet`, `test-automation-implementer`, `test-gap-analyzer`, `testrail-publisher` |
 
 | Decision | Choice | Reason |
 |---|---|---|
-| Plugin name | `gendd` | Sets the namespace, giving `/gendd:enhance-requirements` |
-| Skills | Exactly one | Proof of concept; scope kept deliberately small |
-| Invocation | `disable-model-invocation: true` | Human-initiated task; see above |
-| Methodology | Three verbatim copies under `references/` | Plugin stays self-contained anywhere it is installed |
+| Two plugins, not one | Split by audience (product vs. engineering/QA) | Each team installs only the skills relevant to their work; namespaces stay meaningful |
+| Invocation | Default (model-invocable) for every skill in both plugins | Each skill's own `description` frontmatter carries the trigger conditions Claude uses to decide relevance — see [Who decides when a skill runs](#who-decides-when-a-skill-runs) for the underlying control question |
+| Supporting files | Per-skill `references/`/`scripts/`, not a shared tree | Every skill folder is self-contained and portable on its own |
 | Agents / hooks / MCP | None | Not needed; every component added is context cost |
-
-### The bundled references, and their broken links
-
-The three files under `references/enhance-requirements/` are **byte-identical copies** of documents in `gendd-analysis/`, verified with `cmp`. Copying them verbatim keeps the plugin self-contained, but it carries a wrinkle worth knowing: their internal cross-links (`workflows/...`, `templates/...`, `@GenDD-Flow/...`) were written relative to `gendd-analysis/` and **do not resolve inside the plugin**. One of them, `templates/architecture-decision-record.md`, is a dead link even in the original repository.
-
-Rather than edit the copies and lose byte-fidelity with the source, `SKILL.md` instructs the agent to ignore those cross-references and treat the three copied files as the complete input.
-
-### The skill's contract
-
-`SKILL.md` requires the agent to ask for a requirement if none was supplied, target the user's own project rather than the plugin source, label every inference as an assumption, and return results in chat only — no code changes, no files written, no MCP, no tests.
 
 ---
 
@@ -171,8 +170,8 @@ Rather than edit the copies and lose byte-fidelity with the source, `SKILL.md` i
 |---|---|---|
 | Distribution guide | [2-distribution-guide.md](2-distribution-guide.md) | How this plugin reaches teams, and the two mechanisms involved |
 | Token benchmarks | [3-token-benchmarks.md](3-token-benchmarks.md) | Measured cost of installing and invoking the plugin |
-| Install instructions | [README.md](README.md) | Local install and invocation |
-| The skill itself | `skills/enhance-requirements/SKILL.md` | Frontmatter and instructions |
+| The plugins' manifest | [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json) | Catalog entry for both plugins |
+| The skills themselves | `accurate-ai-product/skills/`, `accurate-ai-engineer/skills/` | Frontmatter and instructions, one `SKILL.md` per skill |
 | Official: skills | https://code.claude.com/docs/en/skills | Skills, frontmatter, invocation control |
 | Official: plugins | https://code.claude.com/docs/en/plugins | Building plugins |
 | Official: plugins reference | https://code.claude.com/docs/en/plugins-reference | Complete technical specification |
